@@ -8,10 +8,27 @@ import gc
 import uos
 import senko
 import machine
+from machine import Pin,SPI
+import utime
 import network
 from my_config import *
 
 gc.collect()
+
+#blink
+def blink(n, color, duration = 0.2):
+    
+    led_g = Pin(13, Pin.OUT)
+    led_r = Pin(12, Pin.OUT)
+    led = led_g if color == 'g' else led_r
+        
+    led.value(0)
+    while n > 0:
+        n -= 1
+        led.value(1)
+        utime.sleep(duration)
+        led.value(0)
+        utime.sleep(duration)
 
 #OTA update
 OTA = senko.Senko(
