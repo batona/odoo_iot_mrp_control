@@ -45,6 +45,7 @@ def do_connect():
         while not sta_if.isconnected():
             pass
     print('network config:', sta_if.ifconfig())
+    blink(5, 'g')
 
 do_connect()
 
