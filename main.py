@@ -32,7 +32,6 @@ import ujson as json
 import random
 import urequests as requests
 
-
 ####################################
 
 #blink
