@@ -23,6 +23,7 @@ GREEN    GPIO13(D7)
 RED      GPIO12(D6)
 GND      GND
 '''
+
 from my_config import *
 import network
 import mfrc522
@@ -31,6 +32,7 @@ import utime
 import ujson as json
 import random
 import urequests as requests
+
 
 ####################################
 
@@ -115,7 +117,7 @@ def do_call(rfid_key):
 
     #search manufacturing order
     mo = call(url, "object", "execute", DB, uid, PASS, 'mrp.production', 'search',
-              [['rfid_key', '=', rfid_key]], 0, 1, 'id desc')
+              [['rfid_key', '=', rfid_key], ['state','not in',['done','cancel']]], 0, 1, 'id desc')
     print('mo:', mo)
     
     if mo == []:
@@ -128,14 +130,6 @@ def do_call(rfid_key):
     r = call(url, "object", "execute", DB, uid, PASS, 'mrp.production', 'read', mo, ['name', 'state'])
     #print(r)
     
-    #check MO state
-    #done, cancel - return
-    if r[0]['state'] in ['done', 'cancel']:
-        print("MO state is not operable: " + r[0]['state'])
-        error_message('mrp.production', mo[0], 'MO state is not operable: ' + r[0]['state'])
-        blink(2, 'r', 1)
-        return 
-
     #confirmed means no workorders - push button_plan
     if r[0]['state'] in ['confirmed']:
         print("Creating workorders")
@@ -151,7 +145,7 @@ def do_call(rfid_key):
 
     #search workorder
     wo = call(url, "object", "execute", DB, uid, PASS, 'mrp.workorder', 'search',
-                  [['production_id', '=', mo[0]], ['workcenter_id', '=', wc]], 0, 1 )
+                  [['production_id', '=', mo[0]], ['workcenter_id', '=', wc], ['state','not in',['done','cancel']]], 0, 1 )
     print('wo:', wo)
 
     if wo == []:
@@ -194,6 +188,9 @@ def do_call(rfid_key):
         r = call(url, "object", "execute", DB, uid, PASS, 'mrp.workorder', 'button_finish', wo)
         print(r)
         if r == True:
+            #_get_produced_qty
+            r = call(url, "object", "execute", DB, uid, PASS, 'mrp.production', '_get_produced_qty', mo)
+            print(r)
             return
         else:
             print("Cannot finish workorder")
