@@ -150,37 +150,35 @@ def do_call(rfid_key):
 
     if wo == []:
         print('Workorder Not found')
-        error_message('mrp.production', mo[0], 'Workorder Not found')
-        blink(1, 'r', 1)
+        #error_message('mrp.production', mo[0], 'Workorder Not found')
+        #blink(1, 'r', 1)
         return
 
     #read wo obj
     r = call(url, "object", "execute", DB, uid, PASS, 'mrp.workorder', 'read',  wo, ['name', 'state'] )
     print(r)
                   
-    if r[0]['state'] in ['done', 'cancel']:
-        print("WO state is not operable: " + r[0]['state'])
-        error_message('mrp.production', mo[0], 'WO state is not operable: ' + r[0]['state'])
-        blink(2, 'r', 1)
-        return
-    
     if r[0]['state'] in ['pending', 'ready']:
         #call button_start method
         r = call(url, "object", "execute", DB, uid, PASS, 'mrp.workorder', 'button_start', wo)
         print(r)
         if r == True:
             #call button_finish method
-            time.sleep(1)
+            utime.sleep(1)
             r = call(url, "object", "execute", DB, uid, PASS, 'mrp.workorder', 'button_finish', wo)
             print(r)
             if r == True:
+                blink(1, 'g', 1)
                 return
             else:
                 print("Cannot finish workorder")
                 error_message('mrp.production', mo[0], 'Cannot finish workorder')
+                blink(2, 'r', 1)
+
         else:
             print("Cannot start workorder")
             error_message('mrp.production', mo[0], 'Cannot start workorder')
+            blink(2, 'r', 1)
             return
 
     if r[0]['state'] in ['progress']:
@@ -188,13 +186,12 @@ def do_call(rfid_key):
         r = call(url, "object", "execute", DB, uid, PASS, 'mrp.workorder', 'button_finish', wo)
         print(r)
         if r == True:
-            #_get_produced_qty
-            r = call(url, "object", "execute", DB, uid, PASS, 'mrp.production', '_get_produced_qty', mo)
-            print(r)
+            blink(1, 'g', 1)
             return
         else:
             print("Cannot finish workorder")
             error_message('mrp.production', mo[0], 'Cannot finish workorder')
+            blink(2, 'r', 1)
             return
 
     return
