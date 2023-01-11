@@ -117,7 +117,7 @@ def do_call(rfid_key):
 
     #search manufacturing order
     mo = call(url, "object", "execute", DB, uid, PASS, 'mrp.production', 'search',
-              [['rfid_key', '=', rfid_key], ['state','not in',['done','cancel']]], 0, 1, 'id desc')
+              [['x_rfid_key', '=', rfid_key], ['state','not in',['done','cancel']]], 0, 1, 'id desc')
     print('mo:', mo)
     
     if mo == []:
@@ -134,7 +134,7 @@ def do_call(rfid_key):
     if r[0]['state'] in ['confirmed']:
         print("Creating workorders")
         r = call(url, "object", "execute", DB, uid, PASS, 'mrp.production', 'button_plan', mo)
-        print(r)
+        print('button_plan:', r)
 
         if r != True:
             print("Cannot create workorders")
@@ -156,17 +156,17 @@ def do_call(rfid_key):
 
     #read wo obj
     r = call(url, "object", "execute", DB, uid, PASS, 'mrp.workorder', 'read',  wo, ['name', 'state'] )
-    print(r)
+    print('wo:', r)
                   
     if r[0]['state'] in ['pending', 'ready']:
         #call button_start method
         r = call(url, "object", "execute", DB, uid, PASS, 'mrp.workorder', 'button_start', wo)
-        print(r)
+        print('button_start:', r)
         if r == True:
-            #call button_finish method
-            utime.sleep(1)
-            r = call(url, "object", "execute", DB, uid, PASS, 'mrp.workorder', 'button_finish', wo)
-            print(r)
+            #call record_production method
+            time.sleep(1)
+            r = call(url, "object", "execute", DB, uid, PASS, 'mrp.workorder', 'record_production', wo)
+            print('record_production:', r)
             if r == True:
                 blink(1, 'g', 1)
                 return
@@ -182,9 +182,9 @@ def do_call(rfid_key):
             return
 
     if r[0]['state'] in ['progress']:
-        #call button_finish method
-        r = call(url, "object", "execute", DB, uid, PASS, 'mrp.workorder', 'button_finish', wo)
-        print(r)
+        #call record_production method
+        r = call(url, "object", "execute", DB, uid, PASS, 'mrp.workorder', 'record_production', wo)
+        print('record_production:', r)
         if r == True:
             blink(1, 'g', 1)
             return
