@@ -164,7 +164,7 @@ def do_call(rfid_key):
         print('button_start:', r)
         if r == True:
             #call record_production method
-            time.sleep(1)
+            utime.sleep(1)
             r = call(url, "object", "execute", DB, uid, PASS, 'mrp.workorder', 'record_production', wo)
             print('record_production:', r)
             if r == True:
