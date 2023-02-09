@@ -213,7 +213,7 @@ def error_message(model, res_id, message):
         print("Cannot send message to object")
 
 #main flow
-do_connect()
+#do_connect()
 
 # log in the given database
 url = "http://%s:%s/jsonrpc" % (HOST, PORT)
